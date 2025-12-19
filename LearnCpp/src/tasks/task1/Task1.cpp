@@ -1,11 +1,15 @@
 #include "Downloader.h"
+#include "Task1.h"
 #include <iostream>
+
+namespace TaskModule {
+
 
 void printDownloadInfo(const std::string& url, const std::string& path, long timeOut);
 
 void updateConfig(DownloadConfig& cfg);
 
-int main() {
+int Task1() {
     Downloader dl;
 
     DownloadConfig config;
@@ -34,5 +38,8 @@ void printDownloadInfo(const std::string& url, const std::string& path, long tim
 
 void updateConfig(DownloadConfig& cfg) {
     // TODO: 更新下载配置
+
+}
+
 
 }
