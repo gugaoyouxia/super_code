@@ -30,6 +30,10 @@ bool Downloader::download(const DownloadConfig& config) {
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
 
+    // 超时设置（秒）
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, config.totalTimeoutSec);
+
+
     CURLcode res = curl_easy_perform(curl);
     fclose(fp);
 

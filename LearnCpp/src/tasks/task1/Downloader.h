@@ -7,6 +7,8 @@
 struct DownloadConfig {
     std::string url;         // 下载链接
     std::string outputPath;  // 保存路径
+    long totalTimeoutSec = 10; //超时时间
+
 };
 
 class Downloader {
