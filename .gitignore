@@ -39,3 +39,15 @@
 
 # debug information files
 *.dwo
+
+# c++ 编译产物
+*.so.*
+*.dylib
+
+*.d
+*.tmp
+*.log
+
+
+core
+core.*
