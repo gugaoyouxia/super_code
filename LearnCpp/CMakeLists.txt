@@ -7,6 +7,22 @@ project(Supercode)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 递归添加 src 下所有子目录到 include path
+file(GLOB_RECURSE HEADER_DIRS RELATIVE ${CMAKE_SOURCE_DIR}/src "${CMAKE_SOURCE_DIR}/src/*.h")
+
+# 提取所有包含目录
+set(INCLUDE_DIRS "")
+foreach(header ${HEADER_DIRS})
+    get_filename_component(dir ${header} PATH)
+    list(APPEND INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/src/${dir}")
+endforeach()
+
+# 去重
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+
+# 添加到 include path
+include_directories(${INCLUDE_DIRS})
+
 # 指定源文件目录
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
