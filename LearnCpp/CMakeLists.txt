@@ -1,0 +1,42 @@
+cmake_minimum_required(VERSION 3.16)
+
+# 工程名
+project(Supercode)
+
+# C++标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 递归添加 src 下所有子目录到 include path
+file(GLOB_RECURSE HEADER_DIRS RELATIVE ${CMAKE_SOURCE_DIR}/src "${CMAKE_SOURCE_DIR}/src/*.h")
+
+# 提取所有包含目录
+set(INCLUDE_DIRS "")
+foreach(header ${HEADER_DIRS})
+    get_filename_component(dir ${header} PATH)
+    list(APPEND INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/src/${dir}")
+endforeach()
+
+# 去重
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+
+# 添加到 include path
+include_directories(${INCLUDE_DIRS})
+
+# 指定源文件目录
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
+
+# 生成可执行文件
+add_executable(Supercode ${SOURCES})
+
+
+# 找到系统的 libcurl
+find_package(CURL REQUIRED)
+
+# 链接 libcurl
+target_link_libraries(Supercode PRIVATE CURL::libcurl)
+
+# 设置可执行文件输出到 bin 目录
+set_target_properties(Supercode PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
+)
