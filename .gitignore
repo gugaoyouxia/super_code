@@ -39,3 +39,31 @@
 
 # debug information files
 *.dwo
+
+# c++ 编译产物
+*.so.*
+*.dylib
+
+*.d
+*.tmp
+*.log
+
+
+core
+core.*
+
+# ===== Build 目录 =====
+build/
+build-*/
+cmake-build-*/
+out/
+bin/
+obj/
+
+# ===== VS Code =====
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# ===== macOS =====
+.DS_Store
