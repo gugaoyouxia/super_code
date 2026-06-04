@@ -1,0 +1,147 @@
+<navigation-bar title="Poker Online" back="{{false}}" color="#ffffff" background="#06160c"></navigation-bar>
+
+<view class="page">
+  <view wx:if="{{screen === 'lobby'}}" class="lobby">
+    <view class="brand">
+      <view class="brand-icon">♣</view>
+      <view class="brand-title">Poker Online</view>
+      <view class="brand-subtitle">德州扑克 · 本地单桌练习</view>
+    </view>
+
+    <view class="form-block">
+      <view class="field-label">昵称</view>
+      <input class="text-input" value="{{playerName}}" bindinput="onPlayerNameInput" placeholder="输入昵称" />
+    </view>
+
+    <button class="mode-card local-card" bindtap="enterLocalTable">
+      <view class="mode-icon">CPU</view>
+      <view class="mode-text">
+        <view class="mode-title">本地对战</view>
+        <view class="mode-subtitle">与 3 个 AI 玩家立刻开局</view>
+      </view>
+      <view class="mode-arrow">›</view>
+    </button>
+
+    <view class="form-block">
+      <view class="field-label">WebSocket 服务器</view>
+      <input class="text-input" value="{{serverURL}}" bindinput="onServerURLInput" placeholder="ws://127.0.0.1:8080/poker" />
+    </view>
+
+    <button class="mode-card online-card" bindtap="enterOnlineTable">
+      <view class="mode-icon">WS</view>
+      <view class="mode-text">
+        <view class="mode-title">在线对战</view>
+        <view class="mode-subtitle">保留 Swift 版入口，待接入服务端</view>
+      </view>
+      <view class="mode-arrow">›</view>
+    </button>
+  </view>
+
+  <view wx:elif="{{screen === 'table'}}" class="table-page">
+    <view class="top-bar">
+      <view class="top-title">♣ PokerOnline</view>
+      <view class="blind-label">SB/BB {{state.smallBlind}}/{{state.bigBlind}}</view>
+    </view>
+
+    <view class="table-wrap">
+      <view class="poker-table">
+        <view class="table-center">
+          <view class="pot-label">底池: {{state.pot}}</view>
+          <view class="community-cards">
+            <block wx:for="{{communitySlots}}" wx:key="index">
+              <view wx:if="{{item.empty}}" class="card placeholder-card"></view>
+              <view wx:else class="card board-card {{item.colorClass}}">
+                <view class="card-rank">{{item.rankDisplay}}</view>
+                <view class="card-suit">{{item.suitSymbol}}</view>
+              </view>
+            </block>
+          </view>
+          <view class="stage-label">{{stageText}}</view>
+        </view>
+
+        <block wx:for="{{tablePlayers}}" wx:key="id">
+          <view class="seat {{item.seatClass}} {{item.activeClass}} {{item.foldedClass}}">
+            <view class="hole-cards">
+              <block wx:for="{{item.cards}}" wx:for-item="card" wx:key="index">
+                <view wx:if="{{card.empty}}" class="mini-card empty-mini-card"></view>
+                <view wx:elif="{{card.faceDown}}" class="mini-card back-card">♣</view>
+                <view wx:else class="mini-card {{card.colorClass}}">
+                  <view class="mini-rank">{{card.rankDisplay}}</view>
+                  <view class="mini-suit">{{card.suitSymbol}}</view>
+                </view>
+              </block>
+            </view>
+
+            <view class="player-box">
+              <view class="player-line">
+                <text class="avatar">{{item.avatar}}</text>
+                <text class="player-name">{{item.name}}</text>
+              </view>
+              <view class="chips">{{item.chips}}</view>
+              <view class="bet-line">
+                <text class="bet-label">下注</text>
+                <text class="bet-value {{item.currentBet > 0 ? 'has-bet' : ''}}">{{item.currentBet}}</text>
+              </view>
+              <view wx:if="{{item.statusText}}" class="status-tag">{{item.statusText}}</view>
+            </view>
+
+            <view class="position-tags">
+              <text wx:if="{{item.isDealer}}" class="pos-tag dealer">D</text>
+              <text wx:if="{{item.isSmallBlind}}" class="pos-tag sb">SB</text>
+              <text wx:if="{{item.isBigBlind}}" class="pos-tag bb">BB</text>
+            </view>
+          </view>
+        </block>
+
+        <view wx:if="{{state.lastWinners.length}}" class="winner-box">
+          <block wx:for="{{state.lastWinners}}" wx:key="id">
+            <view class="winner-line">{{item.playerName}} +{{item.amountWon}}</view>
+            <view class="winner-hand">{{item.handDescription}}</view>
+          </block>
+        </view>
+      </view>
+    </view>
+
+    <view class="log-box">
+      <block wx:for="{{visibleLogs}}" wx:key="id">
+        <view class="log-line">{{item.text}}</view>
+      </block>
+    </view>
+
+    <view wx:if="{{state.stage === 'waiting' || state.stage === 'handOver'}}" class="bottom-panel">
+      <button class="primary-action" bindtap="startNewHand">
+        {{state.stage === 'waiting' ? '开始游戏' : '开始下一手'}}
+      </button>
+      <button class="secondary-action" bindtap="backToLobby">返回大厅</button>
+    </view>
+
+    <view wx:else class="action-panel">
+      <view wx:if="{{isMyTurn}}" class="action-content">
+        <view class="raise-row">
+          <text class="raise-value">{{raiseAmount}}</text>
+          <slider
+            class="raise-slider"
+            min="{{minRaiseTo}}"
+            max="{{maxRaiseTo}}"
+            step="5"
+            value="{{raiseAmount}}"
+            disabled="{{raiseDisabled}}"
+            activeColor="#f6c343"
+            backgroundColor="rgba(255,255,255,0.22)"
+            block-size="20"
+            bindchanging="onRaiseChanging"
+            bindchange="onRaiseChanging"
+          />
+        </view>
+        <view class="action-buttons">
+          <button class="action-btn fold-btn" bindtap="fold">弃牌</button>
+          <button wx:if="{{canCheck}}" class="action-btn call-btn" bindtap="check">看牌</button>
+          <button wx:else class="action-btn call-btn" bindtap="call">跟 {{toCall}}</button>
+          <button class="action-btn raise-btn" disabled="{{raiseDisabled}}" bindtap="betOrRaise">{{actionLabel}} {{raiseAmount}}</button>
+          <button class="action-btn allin-btn" bindtap="allIn">All-In</button>
+        </view>
+      </view>
+      <view wx:else class="waiting-text">{{waitingText}}</view>
+    </view>
+  </view>
+</view>
